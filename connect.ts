@@ -31,3 +31,12 @@ export const users = pgTable('users', {
     created_at: varchar('created_at'),
     active: boolean('active').default(true)
 })
+
+export const questions = pgTable('questions', {
+    question_id: varchar('question_id').primaryKey(),
+    first_name: varchar('first_name'),
+    last_name: varchar('last_name'),
+    contact: varchar('contact'),
+    message: varchar('message'),
+    created_at: varchar('created_at'),
+})

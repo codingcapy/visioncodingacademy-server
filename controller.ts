@@ -7,7 +7,7 @@ description: controller for http webserver app for Vision Coding Academy
 
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { db, users } from './connect';
+import { db, questions, users } from './connect';
 
 export async function createUser(req: Request, res: Response) {
     const user_id = uuidv4();
@@ -29,5 +29,18 @@ export async function getUsers(req: Request, res: Response) {
 }
 
 export async function createQuestion(req: Request, res: Response) {
-    res.status(200).json({ success: true, message: "success" })
+    try {
+        const { first_name, last_name, contact, content } = req.body
+        console.log(first_name, last_name, contact, content)
+        const question_id = uuidv4();
+        const now = new Date();
+        const timestamp = now.toISOString();
+        await db.insert(questions).values({ question_id, first_name, last_name, contact, message: content, created_at: timestamp })
+        res.status(200).json({ success: true, message: "success" })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({ success: false, message: "Internal Server Error: could not create question" })
+    }
+
 }
