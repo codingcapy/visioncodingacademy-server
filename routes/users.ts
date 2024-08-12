@@ -6,9 +6,9 @@ description: users route for http webserver app for Vision Coding Academy
  */
 
 import express from "express";
-import { createUser } from "../controller";
+import { createUser, getUsers } from "../controller";
 
 const users = express.Router();
-users.route('/').post(createUser)
+users.route('/').post(createUser).get(getUsers)
 
 export default users;
