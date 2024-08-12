@@ -29,5 +29,5 @@ export async function getUsers(req: Request, res: Response) {
 }
 
 export async function createQuestion(req: Request, res: Response) {
-
+    res.status(200).json({ success: true, message: "success" })
 }
