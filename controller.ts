@@ -8,6 +8,8 @@ description: controller for http webserver app for Vision Coding Academy
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { db, questions, users } from './connect';
+import dotenv from "dotenv";
+dotenv.config()
 
 export async function createUser(req: Request, res: Response) {
     try {
