@@ -10,16 +10,19 @@ import { v4 as uuidv4 } from 'uuid';
 import { db, questions, users } from './connect';
 
 export async function createUser(req: Request, res: Response) {
-    const user_id = uuidv4();
-    console.log(user_id)
-    res.status(200).send("success")
-
+    try {
+        const user_id = uuidv4();
+        res.status(200).json({ success: true, message: "success" })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({ success: false, message: "fail" })
+    }
 }
 
 export async function getUsers(req: Request, res: Response) {
     try {
         const result = await db.select().from(users)
-        console.log(result)
         res.status(200).send("success2")
     }
     catch (err) {
