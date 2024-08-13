@@ -10,6 +10,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import users from "./routes/users";
 import questions from "./routes/questions";
+import user from "./routes/user";
 
 dotenv.config();
 const app = express();
@@ -20,6 +21,7 @@ app.use(express.json());
 
 app.get("/", (req, res) => res.send("welcome"));
 app.use("/api/users/", users)
+app.use("/api/user/", user)
 app.use("/api/questions/", questions)
 
 app.listen(port, () => console.log(`Server listening on port: ${port}`));

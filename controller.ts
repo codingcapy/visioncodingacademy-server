@@ -11,6 +11,7 @@ import { db, questions, users } from './connect';
 import dotenv from "dotenv";
 import { eq } from 'drizzle-orm';
 import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken";
 dotenv.config()
 
 const saltRounds = 10;
@@ -48,14 +49,47 @@ export async function createUser(req: Request, res: Response) {
     }
 }
 
-export async function getUsers(req: Request, res: Response) {
+export async function validateUser(req: Request, res: Response) {
+    const { email, password } = req.body;
     try {
-        const result = await db.select().from(users)
-        res.status(200).send("success2")
+        const queryResult = await db.select().from(users).where(eq(users.email, email));
+        const user = queryResult[0];
+        if (!user) return res.json({ result: { user: null, token: null } });
+        bcrypt.compare(password, user.password || "", function (err, result) {
+            if (err) {
+                console.error(err);
+                return res.status(500).send("Internal Server Error");
+            }
+            if (result) {
+                const token = jwt.sign({ id: user.user_id }, process.env.JWT_SECRET || "default_secret", { expiresIn: "14 days" });
+                return res.json({ result: { user, token } });
+            } else {
+                return res.json({ result: { user: null, token: null } });
+            }
+        });
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).send("Internal Server Error");
+    }
+}
+
+export async function decryptToken(req: Request, res: Response) {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            res.status(403).send("Header does not exist");
+            return "";
+        }
+        const token = authHeader.split(" ")[1];
+        const decodedUser = jwt.verify(token, "default_secret");
+        //@ts-ignore
+        const response = await db.select().from(users).where(eq(users.user_id, decodedUser.id));
+        const user = response[0]
+        res.json({ result: { user, token } });
     }
     catch (err) {
-        console.log(err)
-        res.status(500).send("error")
+        res.status(401).json({ err });
     }
 }
 
