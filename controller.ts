@@ -51,13 +51,9 @@ export async function createUser(req: Request, res: Response) {
 
 export async function validateUser(req: Request, res: Response) {
     const { email, password } = req.body;
-    console.log(email)
-    console.log(password)
     try {
         const queryResult = await db.select().from(users).where(eq(users.email, email));
-        console.log(queryResult)
         const user = queryResult[0];
-        console.log(user)
         if (!user) return res.json({ result: { user: null, token: null } });
         bcrypt.compare(password, user.password || "", function (err, result) {
             if (err) {
