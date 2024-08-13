@@ -29,7 +29,8 @@ export const users = pgTable('users', {
     username: varchar('username'),
     password: varchar('password'),
     created_at: varchar('created_at'),
-    active: boolean('active').default(true)
+    active: boolean('active').default(true),
+    admin: boolean('admin').default(false)
 })
 
 export const questions = pgTable('questions', {

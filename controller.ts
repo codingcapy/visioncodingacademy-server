@@ -13,12 +13,16 @@ dotenv.config()
 
 export async function createUser(req: Request, res: Response) {
     try {
+        const { email, username, password } = req.body;
         const user_id = uuidv4();
-        res.status(200).json({ success: true, message: "success" })
+        const now = new Date();
+        const timestamp = now.toISOString();
+        await db.insert(users).values({ user_id, email, username, password, created_at: timestamp })
+        res.status(200).json({ success: true, message: "User created successfully" })
     }
     catch (err) {
         console.log(err)
-        res.status(500).json({ success: false, message: "fail" })
+        res.status(500).json({ success: false, message: "Internal Server Error: could not create user" })
     }
 }
 
@@ -40,7 +44,7 @@ export async function createQuestion(req: Request, res: Response) {
         const now = new Date();
         const timestamp = now.toISOString();
         await db.insert(questions).values({ question_id, first_name, last_name, contact, message: content, created_at: timestamp })
-        res.status(200).json({ success: true, message: "success" })
+        res.status(200).json({ success: true, message: "Question created successfully" })
     }
     catch (err) {
         console.log(err)
