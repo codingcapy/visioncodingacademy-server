@@ -35,9 +35,7 @@ export async function getUsers(req: Request, res: Response) {
 
 export async function createQuestion(req: Request, res: Response) {
     try {
-        console.log(process.env)
         const { first_name, last_name, contact, content } = req.body
-        console.log(first_name, last_name, contact, content)
         const question_id = uuidv4();
         const now = new Date();
         const timestamp = now.toISOString();
