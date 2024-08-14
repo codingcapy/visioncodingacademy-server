@@ -154,7 +154,7 @@ export async function sendResetEmail(req: Request, res: Response) {
             return res.json({ success: false, message: "User not found" })
         }
         const user = result[0];
-        await db.update(users).set({ password: "$2b$06$9c2x3N.OhqFfoj.rT8ieL.oFDpyT2AppLIH188YFWBiG0Nw2T5gJW" }).where(eq(users.email, email));
+        await db.update(users).set({ password: process.env.TEMP_PASSWORD }).where(eq(users.email, email));
         sendPasswordEmail(email, user.username || "");
         res.status(200).json({ success: true });
     }
