@@ -12,6 +12,7 @@ import dotenv from "dotenv";
 import { eq } from 'drizzle-orm';
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
 dotenv.config()
 
 const saltRounds = 10;
@@ -40,7 +41,7 @@ export async function createUser(req: Request, res: Response) {
         const user_id = uuidv4();
         const now = new Date();
         const timestamp = now.toISOString();
-        await db.insert(users).values({ user_id, email, username, password:encrypted, created_at: timestamp })
+        await db.insert(users).values({ user_id, email, username, password: encrypted, created_at: timestamp })
         res.status(200).json({ success: true, message: "Success! Redirecting..." })
     }
     catch (err) {
@@ -93,6 +94,43 @@ export async function decryptToken(req: Request, res: Response) {
     }
 }
 
+export async function updateUserPassword(req: Request, res: Response) {
+    const userId = req.params.userId;
+    const incomingPassword = req.body.password;
+    if (incomingPassword.length > 80) {
+        return res.json({ success: false, message: "password max char limit is 80" });
+    }
+    try {
+        const encrypted = await bcrypt.hash(incomingPassword, saltRounds);
+        await db.update(users).set({ password: encrypted.toString() }).where(eq(users.user_id, userId));
+        res.status(200).json({ success: true });
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false, message: "Error updating password" });
+    }
+}
+
+export async function updateUsername(req: Request, res: Response) {
+    const userId = req.params.userId;
+    const incomingUsername = await req.body.username;
+    if (incomingUsername.length > 32) {
+        return res.json({ success: false, message: "Username max char limit is 32" });
+    }
+    try {
+        const usernameQuery = await db.select().from(users).where(eq(users.username, incomingUsername))
+        if (usernameQuery.length > 0) {
+            return res.json({ success: false, message: "Username already exists" });
+        };
+        await db.update(users).set({ username: incomingUsername.toString() }).where(eq(users.user_id, userId));
+        res.status(200).json({ success: true });
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false, message: "Error updating username" });
+    }
+}
+
 export async function createQuestion(req: Request, res: Response) {
     try {
         const { first_name, last_name, contact, content } = req.body
@@ -106,5 +144,79 @@ export async function createQuestion(req: Request, res: Response) {
         console.log(err)
         res.status(500).json({ success: false, message: "Internal Server Error: could not create question" })
     }
+}
 
+export async function sendResetEmail(req: Request, res: Response) {
+    try {
+        const email = req.body.email;
+        const result = await db.select().from(users).where(eq(users.email, email));
+        if (result.length < 1) {
+            return res.json({ success: false, message: "User not found" })
+        }
+        const user = result[0];
+        await db.update(users).set({ password: "$2b$06$9c2x3N.OhqFfoj.rT8ieL.oFDpyT2AppLIH188YFWBiG0Nw2T5gJW" }).where(eq(users.email, email));
+        sendPasswordEmail(email, user.username || "");
+        res.status(200).json({ success: true });
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).json({ success: false, message: "Error sending recovery email" });
+    }
+}
+
+export function sendPasswordEmail(email: string, username: string) {
+    return new Promise((resolve, reject) => {
+        var transporter = nodemailer.createTransport({
+            service: "gmail",
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+                user: "admin@visioncoding.ca",
+                pass: process.env.EMAIL_PASSWORD,
+            },
+        });
+
+        const mail_configs = {
+            from: "admin@visioncoding.ca",
+            to: email,
+            subject: "Vision Coding Password Recovery",
+            html: `<!DOCTYPE html>
+    <html lang="en" >
+    <head>
+      <meta charset="UTF-8">
+      <title>Vision Coding Academy - Password Recovery</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body>
+    <!-- partial:index.partial.html -->
+    <div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
+      <div style="margin:50px auto;width:70%;padding:20px 0">
+        <div style="border-bottom:1px solid #eee">
+          <a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">Vision Coding Academy</a>
+        </div>
+        <p style="font-size:1.1em">Hi ${username},</p>
+        <p>We received a request to reset your password. Your temporary password is:</p>
+        <h2 style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">1234</h2>
+        <p>Please ensure to change to a new, more secure password after logging in by navigating to your Profile.</p>
+        <p style="font-size:0.9em;">Regards,<br />Vision Coding Academy</p>
+        <hr style="border:none;border-top:1px solid #eee" />
+        <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
+          <p>Vision Coding Academy</p>
+        </div>
+      </div>
+    </div>
+    <!-- partial -->
+      
+    </body>
+    </html>`,
+        };
+        transporter.sendMail(mail_configs, function (error, info) {
+            if (error) {
+                console.log(error);
+                return reject({ message: `An error has occured` });
+            }
+            return resolve({ message: "Email sent succesfuly" });
+        });
+    });
 }
