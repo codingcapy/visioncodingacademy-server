@@ -5,6 +5,7 @@ Version: 1.0.0
 description: http webserver app for Vision Coding Academy
  */
 
+console.log('Hello')
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
