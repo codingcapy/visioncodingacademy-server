@@ -148,6 +148,7 @@ export async function createQuestion(req: Request, res: Response) {
 
 export async function sendResetEmail(req: Request, res: Response) {
     try {
+        console.log(process.env.EMAIL_PASSWORD);
         const email = req.body.email;
         const result = await db.select().from(users).where(eq(users.email, email));
         if (result.length < 1) {
