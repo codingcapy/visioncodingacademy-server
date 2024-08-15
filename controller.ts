@@ -148,7 +148,6 @@ export async function createQuestion(req: Request, res: Response) {
 
 export async function sendResetEmail(req: Request, res: Response) {
     try {
-        console.log(process.env.EMAIL_PASSWORD);
         const email = req.body.email;
         const result = await db.select().from(users).where(eq(users.email, email));
         if (result.length < 1) {
@@ -173,13 +172,13 @@ export function sendPasswordEmail(email: string, username: string) {
             port: 465,
             secure: true,
             auth: {
-                user: "admin@visioncoding.ca",
+                user: "noreply.visioncoding@gmail.com",
                 pass: process.env.EMAIL_PASSWORD,
             },
         });
 
         const mail_configs = {
-            from: "admin@visioncoding.ca",
+            from: "noreply.visioncoding@gmail.com",
             to: email,
             subject: "Vision Coding Password Recovery",
             html: `<!DOCTYPE html>
