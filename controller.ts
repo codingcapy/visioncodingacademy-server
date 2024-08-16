@@ -175,7 +175,7 @@ export function sendPasswordEmail(email: string, username: string, temp_pass: st
             secure: true,
             auth: {
                 user: "noreply.visioncoding@gmail.com",
-                pass: temp_pass,
+                pass: process.env.EMAIL_PASSWORD,
             },
         });
 
