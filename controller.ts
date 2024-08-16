@@ -147,6 +147,8 @@ export async function createQuestion(req: Request, res: Response) {
 }
 
 export async function sendResetEmail(req: Request, res: Response) {
+    const temp_password = uuidv4()
+    const encrypted = await bcrypt.hash(temp_password, saltRounds);
     try {
         const email = req.body.email;
         const result = await db.select().from(users).where(eq(users.email, email));
@@ -154,8 +156,8 @@ export async function sendResetEmail(req: Request, res: Response) {
             return res.json({ success: false, message: "User not found" })
         }
         const user = result[0];
-        await db.update(users).set({ password: process.env.TEMP_PASSWORD }).where(eq(users.email, email));
-        sendPasswordEmail(email, user.username || "");
+        await db.update(users).set({ password: encrypted }).where(eq(users.email, email));
+        sendPasswordEmail(email, user.username || "", temp_password);
         res.status(200).json({ success: true });
     }
     catch (err) {
@@ -164,7 +166,7 @@ export async function sendResetEmail(req: Request, res: Response) {
     }
 }
 
-export function sendPasswordEmail(email: string, username: string) {
+export function sendPasswordEmail(email: string, username: string, temp_pass: string) {
     return new Promise((resolve, reject) => {
         var transporter = nodemailer.createTransport({
             service: "gmail",
@@ -173,7 +175,7 @@ export function sendPasswordEmail(email: string, username: string) {
             secure: true,
             auth: {
                 user: "noreply.visioncoding@gmail.com",
-                pass: process.env.EMAIL_PASSWORD,
+                pass: temp_pass,
             },
         });
 
@@ -197,7 +199,7 @@ export function sendPasswordEmail(email: string, username: string) {
         </div>
         <p style="font-size:1.1em">Hi ${username},</p>
         <p>We received a request to reset your password. Your temporary password is:</p>
-        <h2 style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">1234</h2>
+        <h2 style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">${temp_pass}</h2>
         <p>Please ensure to change to a new, more secure password after logging in by navigating to your Profile.</p>
         <p style="font-size:0.9em;">Regards,<br />Vision Coding Academy</p>
         <hr style="border:none;border-top:1px solid #eee" />
@@ -220,3 +222,59 @@ export function sendPasswordEmail(email: string, username: string) {
         });
     });
 }
+
+// export function sendVerificationEmail(email: string, username: string) {
+//     return new Promise((resolve, reject) => {
+//         var transporter = nodemailer.createTransport({
+//             service: "gmail",
+//             host: 'smtp.gmail.com',
+//             port: 465,
+//             secure: true,
+//             auth: {
+//                 user: "noreply.visioncoding@gmail.com",
+//                 pass: process.env.EMAIL_PASSWORD,
+//             },
+//         });
+
+//         const mail_configs = {
+//             from: "noreply.visioncoding@gmail.com",
+//             to: email,
+//             subject: "Vision Coding Email Verification",
+//             html: `<!DOCTYPE html>
+//     <html lang="en" >
+//     <head>
+//       <meta charset="UTF-8">
+//       <title>Vision Coding Academy - Email Verification</title>
+//       <script src="https://cdn.tailwindcss.com"></script>
+//     </head>
+//     <body>
+//     <!-- partial:index.partial.html -->
+//     <div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
+//       <div style="margin:50px auto;width:70%;padding:20px 0">
+//         <div style="border-bottom:1px solid #eee">
+//           <a href="https://www.visioncoding.ca" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">Vision Coding Academy</a>
+//         </div>
+//         <p style="font-size:1.1em">Hi ${username},</p>
+//         <p>Please verify your email</p>
+//         <a href=# style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">Verify</a>
+//         <p style="font-size:0.9em;">Regards,<br />Vision Coding Academy</p>
+//         <hr style="border:none;border-top:1px solid #eee" />
+//         <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
+//           <p>Vision Coding Academy</p>
+//         </div>
+//       </div>
+//     </div>
+//     <!-- partial -->
+      
+//     </body>
+//     </html>`,
+//         };
+//         transporter.sendMail(mail_configs, function (error, info) {
+//             if (error) {
+//                 console.log(error);
+//                 return reject({ message: `An error has occured` });
+//             }
+//             return resolve({ message: "Email sent succesfuly" });
+//         });
+//     });
+// }
