@@ -13,6 +13,7 @@ import { eq } from 'drizzle-orm';
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
+import axios from "axios";
 dotenv.config()
 
 const saltRounds = 10;
@@ -132,12 +133,16 @@ export async function updateUsername(req: Request, res: Response) {
 }
 
 export async function createQuestion(req: Request, res: Response) {
+    const { first_name, last_name, contact, content } = req.body
+    const token = req.body.token
+    const question_id = uuidv4();
+    const now = new Date();
+    const timestamp = now.toISOString();
     try {
-        const { first_name, last_name, contact, content } = req.body
-        const question_id = uuidv4();
-        const now = new Date();
-        const timestamp = now.toISOString();
         await db.insert(questions).values({ question_id, first_name, last_name, contact, message: content, created_at: timestamp })
+        const response = await axios.post(
+            `https://www.google.com/recaptcha/api/siteverify?secret=6Lc6lSgqAAAAAGuz6cbWxpmEjkgaTRT_8v1sXkEQ&response=${token}`
+          );
         res.status(200).json({ success: true, message: "Question created successfully" })
     }
     catch (err) {
