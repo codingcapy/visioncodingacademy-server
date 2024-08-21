@@ -13,6 +13,6 @@ users.route('/').post(createUser);
 users.route('/:userId').post(updateUserPassword);
 users.route('/update/:userId').post(updateUsername);
 users.route('/forgotpassword/:email').post(sendResetEmail);
-users.route('/verify/:userId').post(verifyEmail);
+users.route('/verify/:userId').get(verifyEmail);
 
 export default users;
