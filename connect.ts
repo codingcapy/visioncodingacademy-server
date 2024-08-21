@@ -30,7 +30,8 @@ export const users = pgTable('users', {
     password: varchar('password'),
     created_at: varchar('created_at'),
     active: boolean('active').default(true),
-    admin: boolean('admin').default(false)
+    admin: boolean('admin').default(false),
+    email_verified: boolean('email_verified').default(false),
 })
 
 export const questions = pgTable('questions', {
