@@ -45,7 +45,6 @@ export async function createUser(req: Request, res: Response) {
         await db.insert(users).values({ user_id, email, username, password: encrypted, created_at: timestamp })
         const userQuery = await db.select().from(users).where(eq(users.username, username))
         const user = userQuery[0]
-        console.log(user)
         sendVerificationEmail(user)
         res.status(200).json({ success: true, message: "Success! Redirecting..." })
     }
@@ -245,7 +244,6 @@ export async function verifyEmail(req: Request, res: Response) {
 }
 
 export function sendVerificationEmail(user: any) {
-    console.log(user)
     return new Promise((resolve, reject) => {
         var transporter = nodemailer.createTransport({
             service: "gmail",
