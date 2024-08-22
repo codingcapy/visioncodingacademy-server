@@ -277,7 +277,7 @@ export function sendVerificationEmail(user: any) {
         </div>
         <p style="font-size:1.1em">Hi ${user.username},</p>
         <p>Please verify your email</p>
-        <a href='https://visioncodingacademy-server-production.up.railway.app/users/verify/${user.user_id}' style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">Verify</a>
+        <a href='https://visioncodingacademy-server-production.up.railway.app/api/users/verify/${user.user_id}' style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">Verify</a>
         <p style="font-size:0.9em;">Regards,<br />Vision Coding Academy</p>
         <hr style="border:none;border-top:1px solid #eee" />
         <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
