@@ -233,7 +233,6 @@ export function sendPasswordEmail(email: string, username: string, temp_pass: st
 
 export async function verifyEmail(req: Request, res: Response) {
     const user_id = req.params.userId;
-    console.log(user_id)
     try {
         await db.update(users).set({ email_verified: true }).where(eq(users.user_id, user_id));
         res.status(200).redirect('https://visioncoding.ca/verified')
