@@ -236,11 +236,11 @@ export async function verifyEmail(req: Request, res: Response) {
     console.log(user_id)
     try {
         await db.update(users).set({ email_verified: true }).where(eq(users.user_id, user_id));
-        res.status(200).json({ success: true, message: "Email confirmed!" })
+        res.status(200).redirect('https://visioncoding.ca/verified')
     }
     catch (err) {
         console.log(err)
-        res.status(500).json({ success: false, message: "Error sending recovery email" })
+        res.status(500).json({ success: false, message: "Error sending verification email" })
     }
 }
 
