@@ -331,10 +331,10 @@ export function sendFowardEmail(first_name: string, last_name: string, contact: 
         <div style="border-bottom:1px solid #eee">
           <a href="https://www.visioncoding.ca" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">Vision Coding Academy</a>
         </div>
-        <p style="font-size:1.1em">First Name: ${first_name},</p>
-        <p style="font-size:1.1em">Last Name: ${last_name},</p>
-        <p style="font-size:1.1em">Contact: ${contact},</p>
-        <p style="font-size:1.1em">Content: ${content},</p>
+        <p style="font-size:1.1em">First Name: ${first_name}</p>
+        <p style="font-size:1.1em">Last Name: ${last_name}</p>
+        <p style="font-size:1.1em">Contact: ${contact}</p>
+        <p style="font-size:1.1em">Content: ${content}</p>
         <p style="font-size:0.9em;">Regards,<br />Vision Coding Academy</p>
         <hr style="border:none;border-top:1px solid #eee" />
         <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
