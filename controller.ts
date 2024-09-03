@@ -316,7 +316,7 @@ export function sendFowardEmail(first_name: string, last_name: string, contact: 
         const mail_configs = {
             from: "noreply.visioncoding@gmail.com",
             to: "visioncodingca@gmail.com",
-            subject: "Vision Coding Email Verification",
+            subject: "Vision Coding Incoming User Question",
             html: `<!DOCTYPE html>
     <html lang="en" >
     <head>
