@@ -146,6 +146,7 @@ export async function createQuestion(req: Request, res: Response) {
         const response = await axios.post(
             `https://www.google.com/recaptcha/api/siteverify?secret=6Lc6lSgqAAAAAGuz6cbWxpmEjkgaTRT_8v1sXkEQ&response=${token}`
         );
+        sendFowardEmail(first_name, last_name, contact, content)
         res.status(200).json({ success: true, message: "Question created successfully" })
     }
     catch (err) {
@@ -277,6 +278,63 @@ export function sendVerificationEmail(user: any) {
         <p style="font-size:1.1em">Hi ${user.username},</p>
         <p>Please verify your email</p>
         <a href='https://visioncodingacademy-server-production.up.railway.app/api/users/verify/${user.user_id}' style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">Verify</a>
+        <p style="font-size:0.9em;">Regards,<br />Vision Coding Academy</p>
+        <hr style="border:none;border-top:1px solid #eee" />
+        <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
+          <p>Vision Coding Academy</p>
+        </div>
+      </div>
+    </div>
+    <!-- partial -->
+      
+    </body>
+    </html>`,
+        };
+        transporter.sendMail(mail_configs, function (error, info) {
+            if (error) {
+                console.log(error);
+                return reject({ message: `An error has occured` });
+            }
+            return resolve({ message: "Email sent succesfuly" });
+        });
+    });
+}
+
+export function sendFowardEmail(first_name: string, last_name: string, contact: string, content: string) {
+    return new Promise((resolve, reject) => {
+        var transporter = nodemailer.createTransport({
+            service: "gmail",
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+                user: "noreply.visioncoding@gmail.com",
+                pass: process.env.EMAIL_PASSWORD,
+            },
+        });
+
+        const mail_configs = {
+            from: "noreply.visioncoding@gmail.com",
+            to: "visioncodingca@gmail.com",
+            subject: "Vision Coding Email Verification",
+            html: `<!DOCTYPE html>
+    <html lang="en" >
+    <head>
+      <meta charset="UTF-8">
+      <title>Vision Coding Academy - Incoming User Question</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body>
+    <!-- partial:index.partial.html -->
+    <div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
+      <div style="margin:50px auto;width:70%;padding:20px 0">
+        <div style="border-bottom:1px solid #eee">
+          <a href="https://www.visioncoding.ca" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">Vision Coding Academy</a>
+        </div>
+        <p style="font-size:1.1em">First Name: ${first_name},</p>
+        <p style="font-size:1.1em">Last Name: ${last_name},</p>
+        <p style="font-size:1.1em">Contact: ${contact},</p>
+        <p style="font-size:1.1em">Content: ${content},</p>
         <p style="font-size:0.9em;">Regards,<br />Vision Coding Academy</p>
         <hr style="border:none;border-top:1px solid #eee" />
         <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
