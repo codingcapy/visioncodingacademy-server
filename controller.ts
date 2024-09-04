@@ -137,6 +137,10 @@ export async function updateUsername(req: Request, res: Response) {
 
 export async function createQuestion(req: Request, res: Response) {
     const { first_name, last_name, contact, content } = req.body
+    if (first_name.length > 200) return res.status(400).json({ success: false, message: "First name is too long" })
+    if (last_name.length > 200) return res.status(400).json({ success: false, message: "Last name is too long" })
+    if (contact.length > 255) return res.status(400).json({ success: false, message: "Contact is too long" })
+    if (content.length > 40000) return res.status(400).json({ success: false, message: "Content is too long" })
     const token = req.body.token
     const question_id = uuidv4();
     const now = new Date();
